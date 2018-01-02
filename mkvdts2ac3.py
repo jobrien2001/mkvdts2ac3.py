@@ -317,6 +317,8 @@ else:
     parser.add_argument("--aac", help="Also add aac track", action="store_true")
     parser.add_argument("--aacstereo", help="Make aac track stereo instead of 6 channel", action="store_true")
     parser.add_argument("--aaccustom", metavar="TITLE", help="Custom AAC track title")
+    parser.add_argument("--aacchannelbitrate", default=80, help="AAC Bitrate per channel (default is 80k per channel)", action="store_true")
+    parser.add_argument("--ac3channelbitrate", default=80, help="AC3 Bitrate per channel (default is 80k per channel)", action="store_true")
     parser.add_argument("-c", "--custom", metavar="TITLE", help="Custom AC3 track title")
     parser.add_argument("-d", "--default", help="Mark AC3 track as default", action="store_true")
     parser.add_argument("--destdir", metavar="DIRECTORY", help="Destination Directory")
@@ -745,22 +747,26 @@ def process(ford):
                     audiochannels = 6
                     if args.stereo:
                         audiochannels = 2
-                    convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "ac3", "-ac", str(audiochannels), "-ab", "448k", tempac3file]
+                    if args.ac3channelbitrate:
+                        ac3channelbitrate = args.ac3channelbitrate
+                    convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "ac3", "-ac", str(audiochannels), "-ab", str(audiochannels*ac3channelbitrate) + "k", tempac3file]
                     runcommand(converttitle, convertcmd)
-                   
+
                     if args.aac:
                         converttitle = "  Converting DTS to AAC [" + str(jobnum) + "/" + str(totaljobs) + "]..."
                         jobnum += 1
                         audiochannels = 6
                         if args.aacstereo:
                             audiochannels = 2
-                        convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "libfaac", "-ac", str(audiochannels), "-ab", "448k", tempaacfile]
+                        if args.aacchannelbitrate:
+                            aacchannelbitrate = args.aacchannelbitrate
+                        convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "libfaac", "-ac", str(audiochannels), "-ab", str(audiochannels*aacchannelbitrate) + "k", tempaacfile]
                         runcommand(converttitle, convertcmd)
                         if not os.path.isfile(tempaacfile) or os.path.getsize(tempaacfile) == 0:
-                            convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "libvo_aacenc", "-ac", str(audiochannels), "-ab", "448k", tempaacfile]
+                            convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "libvo_aacenc", "-ac", str(audiochannels), "-ab", str(audiochannels*aacchannelbitrate) + "k", tempaacfile]
                             runcommand(converttitle, convertcmd)
                         if not os.path.isfile(tempaacfile) or os.path.getsize(tempaacfile) == 0:
-                            convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "aac", "-strict", "experimental", "-ac", str(audiochannels), "-ab", "448k", tempaacfile]
+                            convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "aac", "-ac", str(audiochannels), "-ab", str(audiochannels*aacchannelbitrate) + "k", tempaacfile]
                             runcommand(converttitle, convertcmd)
                         if not os.path.isfile(tempaacfile) or os.path.getsize(tempaacfile) == 0:
                             args.aac = False
