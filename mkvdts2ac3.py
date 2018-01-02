@@ -263,11 +263,6 @@ if os.environ.has_key('NZBOP_SCRIPTDIR') and not os.environ['NZBOP_VERSION'][0:5
     args.position = os.environ['NZBPO_POSITION']
 
     args.sabdestdir = 'sab'
-    
-    if os.environ['NZBPO_STEREO'] == 'False':
-        args.stereo = False
-    else:
-        args.stereo = True
 
     args.track = os.environ['NZBPO_TRACK']
 
@@ -317,9 +312,9 @@ else:
     parser.add_argument("--aac", help="Also add aac track", action="store_true")
     parser.add_argument("--aaccustom", metavar="TITLE", help="Custom AAC track title")
     parser.add_argument("--aacchannelbitrate", metavar="AACCHANNELBITRATE", default=80, help="AAC Bitrate per channel (default: 80)")
-    parser.add_argument("--aacmaxchannels", metavar="AACMAXCHANNELS", default=2, help="Maximum amount of channels of AAC track (default:6)")
+    parser.add_argument("--aacmaxchannels", metavar="AACMAXCHANNELS", default=6, help="Maximum amount of channels of AAC track (default:6)")
     parser.add_argument("--channelbitrate", metavar="CHANNELBITRATE", default=80, help="AC3 Bitrate per channel (default is 80k per channel)")
-    parser.add_argument("--maxchannels", metavar="MAXCHANNELS", default=2, help="Maximum amount of channels of AC3 track (default:6)")
+    parser.add_argument("--maxchannels", metavar="MAXCHANNELS", default=6, help="Maximum amount of channels of AC3 track (default:6)")
     parser.add_argument("-c", "--custom", metavar="TITLE", help="Custom AC3 track title")
     parser.add_argument("-d", "--default", help="Mark AC3 track as default", action="store_true")
     parser.add_argument("--destdir", metavar="DIRECTORY", help="Destination Directory")
@@ -339,7 +334,6 @@ else:
     parser.add_argument("-r", "--recursive", help="Recursively descend into directories", action="store_true")
     parser.add_argument("-s", "--compress", metavar="MODE", help="Apply header compression to streams (See mkvmerge's --compression)", default='none')
     parser.add_argument("--sabdestdir", metavar="DIRECTORY", help="SABnzbd Destination Directory")
-    parser.add_argument("--stereo", help="Make ac3 track stereo instead of 6 channel", action="store_true")
     parser.add_argument("-t", "--track", metavar="TRACKID", help="Specify alternate DTS track. If it is not a DTS track it will default to the first DTS track found")
     parser.add_argument("--all-tracks", help="Convert all DTS tracks", action="store_true");
     parser.add_argument("-w", "--wd", metavar="FOLDER", help="Specify alternate temporary working directory")
