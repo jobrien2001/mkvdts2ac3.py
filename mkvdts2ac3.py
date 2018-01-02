@@ -881,6 +881,9 @@ def process(ford):
                         remux.append(dtsinfo[dtstrackid]['ac3file'])
 
                         if args.aac:
+                            # Set the language
+                            remux.append("--language")
+                            remux.append("0:" + dtsinfo[dtstrackid]['lang'])
                             # If the name was set for the original DTS track set it for the AAC
                             if aacname:
                                 remux.append("--track-name")
