@@ -332,7 +332,7 @@ else:
     parser.add_argument("--new", help="Do not copy over original. Create new adjacent file", action="store_true")
     parser.add_argument("--no-subtitles", help="Remove subtitles", action="store_true")
     parser.add_argument("-o", "--overwrite", help="Overwrite file if already there. This only applies if destdir or sabdestdir is set", action="store_true")
-    parser.add_argument("-p", "--position", choices=['initial', 'last', 'afterdts'], default="last", help="Set position of AC3 track. 'initial' = First track in file, 'last' = Last track in file, 'afterdts' = After the DTS track [default: last]")
+    parser.add_argument("-p", "--position", choices=['initial', 'last', 'afterdts'], default="afterdts", help="Set position of AC3 track. 'initial' = First track in file, 'last' = Last track in file, 'afterdts' = After the DTS track [default: last]")
     parser.add_argument("-r", "--recursive", help="Recursively descend into directories", action="store_true")
     parser.add_argument("-s", "--compress", metavar="MODE", help="Apply header compression to streams (See mkvmerge's --compression)", default='none')
     parser.add_argument("--sabdestdir", metavar="DIRECTORY", help="SABnzbd Destination Directory")
