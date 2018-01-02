@@ -45,13 +45,17 @@ Usage
 =====
 
 <pre>
-usage: mkvdts2ac3.py [-h] [--aac] [--aacstereo] [--aaccustom TITLE] [-c TITLE]
-                     [-d] [--destdir DIRECTORY] [-e] [-f]
-                     [--ffmpegpath DIRECTORY] [-i] [-k] [--md5] [--mp4]
-                     [--mkvtoolnixpath DIRECTORY] [-n] [--new]
-                     [--no-subtitles] [-o] [-r] [-s MODE]
-                     [--sabdestdir DIRECTORY] [--stereo] [-t TRACKID]
-                     [--all-tracks] [-w FOLDER] [-v] [-V] [--test] [--debug]
+usage: mkvdts2ac3.py [-h] [--aac] [--aaccustom TITLE]
+                     [--aacchannelbitrate AACCHANNELBITRATE]
+                     [--aacmaxchannels AACMAXCHANNELS]
+                     [--channelbitrate CHANNELBITRATE]
+                     [--maxchannels MAXCHANNELS] [-c TITLE] [-d]
+                     [--destdir DIRECTORY] [-e] [-f] [--ffmpegpath DIRECTORY]
+                     [-k] [--md5] [--mp4] [--mkvtoolnixpath DIRECTORY] [-n]
+                     [--new] [--no-subtitles] [-o]
+                     [-p {initial,last,afterdts}] [-r] [-s MODE]
+                     [--sabdestdir DIRECTORY] [-t TRACKID] [--all-tracks]
+                     [-w FOLDER] [-v] [-V] [--test] [--debug]
                      FileOrDirectory [FileOrDirectory ...]
 
 convert matroska (.mkv) video files audio portion from dts to ac3
@@ -62,8 +66,15 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   --aac                 Also add aac track
-  --aacstereo           Make aac track stereo instead of 6 channel
   --aaccustom TITLE     Custom AAC track title
+  --aacchannelbitrate AACCHANNELBITRATE
+                        AAC Bitrate per channel (default: 80)
+  --aacmaxchannels AACMAXCHANNELS
+                        Maximum amount of channels of AAC track (default:6)
+  --channelbitrate CHANNELBITRATE
+                        AC3 Bitrate per channel (default is 80k per channel)
+  --maxchannels MAXCHANNELS
+                        Maximum amount of channels of AC3 track (default:6)
   -c TITLE, --custom TITLE
                         Custom AC3 track title
   -d, --default         Mark AC3 track as default
@@ -74,7 +85,6 @@ optional arguments:
   -f, --force           Force processing when AC3 track is detected
   --ffmpegpath DIRECTORY
                         Path of ffmpeg
-  -i, --initial         New AC3 track will be first in the file
   -k, --keepdts         Keep external DTS track (implies '-n')
   --md5                 check md5 of files before removing the original if
                         destination directory is on a different device than
@@ -87,13 +97,16 @@ optional arguments:
   --no-subtitles        Remove subtitles
   -o, --overwrite       Overwrite file if already there. This only applies if
                         destdir or sabdestdir is set
+  -p {initial,last,afterdts}, --position {initial,last,afterdts}
+                        Set position of AC3 track. 'initial' = First track in
+                        file, 'last' = Last track in file, 'afterdts' = After
+                        the DTS track [default: afterdts]
   -r, --recursive       Recursively descend into directories
   -s MODE, --compress MODE
                         Apply header compression to streams (See mkvmerge's
                         --compression)
   --sabdestdir DIRECTORY
                         SABnzbd Destination Directory
-  --stereo              Make ac3 track stereo instead of 6 channel
   -t TRACKID, --track TRACKID
                         Specify alternate DTS track. If it is not a DTS track
                         it will default to the first DTS track found
