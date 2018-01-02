@@ -693,6 +693,12 @@ def process(ford):
                         if "Language" in line:
                             dtslang = line.split()[-1]
                    
+                    # get channels in track
+                    for line in dtstrackinfo:
+                        if "Channels" in line:
+                            dtschannels = line.split()[-1]
+                            print "Channels in Track: " + dtschannels
+
                     # get ac3 track name
                     ac3name = False
                     if args.custom:
