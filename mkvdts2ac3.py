@@ -315,10 +315,11 @@ else:
     parser.add_argument('fileordir', metavar='FileOrDirectory', nargs='+', help='a file or directory (wildcards may be used)')
 
     parser.add_argument("--aac", help="Also add aac track", action="store_true")
-    parser.add_argument("--aacstereo", help="Make aac track stereo instead of 6 channel", action="store_true")
     parser.add_argument("--aaccustom", metavar="TITLE", help="Custom AAC track title")
-    parser.add_argument("--aacchannelbitrate", default=80, help="AAC Bitrate per channel (default is 80k per channel)", action="store_true")
-    parser.add_argument("--ac3channelbitrate", default=80, help="AC3 Bitrate per channel (default is 80k per channel)", action="store_true")
+    parser.add_argument("--aacchannelbitrate", metavar="AACCHANNELBITRATE", default=80, help="AAC Bitrate per channel (default: 80)")
+    parser.add_argument("--aacmaxchannels", metavar="AACMAXCHANNELS", default=2, help="Maximum amount of channels of AAC track (default:6)")
+    parser.add_argument("--channelbitrate", metavar="CHANNELBITRATE", default=80, help="AC3 Bitrate per channel (default is 80k per channel)")
+    parser.add_argument("--maxchannels", metavar="MAXCHANNELS", default=2, help="Maximum amount of channels of AC3 track (default:6)")
     parser.add_argument("-c", "--custom", metavar="TITLE", help="Custom AC3 track title")
     parser.add_argument("-d", "--default", help="Mark AC3 track as default", action="store_true")
     parser.add_argument("--destdir", metavar="DIRECTORY", help="Destination Directory")
@@ -686,18 +687,18 @@ def process(ford):
                             break
                         if startcount != 0:
                             dtstrackinfo.append(line)
-                   
+
                     # get dts language
                     dtslang = "eng"
                     for line in dtstrackinfo:
                         if "Language" in line:
                             dtslang = line.split()[-1]
-                   
+
                     # get channels in track
                     for line in dtstrackinfo:
                         if "Channels" in line:
-                            dtschannels = line.split()[-1]
-                            print "Channels in Track: " + dtschannels
+                            dtschannels = int(line.split()[-1])
+                            print "Channels in Track: " + str(dtschannels)
 
                     # get ac3 track name
                     ac3name = False
@@ -709,9 +710,8 @@ def process(ford):
                                 ac3name = line.split("+ Name: ")[-1]
                                 ac3name = ac3name.replace("DTS", "AC3")
                                 ac3name = ac3name.replace("dts", "ac3")
-                                if args.stereo:
-                                    ac3name = ac3name.replace("5.1", "Stereo")
-                   
+                                ac3name = ac3name.replace("5.1", "")
+
                     # get aac track name
                     aacname = False
                     if args.aaccustom:
@@ -722,8 +722,7 @@ def process(ford):
                                 aacname = line.split("+ Name: ")[-1]
                                 aacname = aacname.replace("DTS", "AAC")
                                 aacname = aacname.replace("dts", "aac")
-                                if args.aacstereo:
-                                    aacname = aacname.replace("5.1", "Stereo")
+                                aacname = aacname.replace("5.1", "")
 
                     # extract timecodes
                     tctitle = "  Extracting Timecodes  [" + str(jobnum) + "/" + str(totaljobs) + "]..."
@@ -750,20 +749,32 @@ def process(ford):
                     # convert DTS to AC3
                     converttitle = "  Converting DTS to AC3 [" + str(jobnum) + "/" + str(totaljobs) + "]..."
                     jobnum += 1
-                    audiochannels = 6
-                    if args.stereo:
-                        audiochannels = 2
-                    if args.ac3channelbitrate:
-                        ac3channelbitrate = args.ac3channelbitrate
-                    convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "ac3", "-ac", str(audiochannels), "-ab", str(audiochannels*ac3channelbitrate) + "k", tempac3file]
+
+                    # Set number of AC3 audio channels
+                    maxchannels = int(args.maxchannels)
+                    audiochannels = maxchannels
+                    if dtschannels:
+                        print "DTS Channels:" + str(dtschannels) + " AC3 MAX Channels:" + str(maxchannels) + " Audio Channels:" + str(audiochannels)
+                        if dtschannels < maxchannels:
+                            print "Channels in DTS track are less than the AC3 max, using number of DTS channels"
+                            audiochannels = dtschannels
+
+                    if args.channelbitrate:
+                        channelbitrate = args.channelbitrate
+                    convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "ac3", "-ac", str(audiochannels), "-ab", str(audiochannels*channelbitrate) + "k", tempac3file]
                     runcommand(converttitle, convertcmd)
 
                     if args.aac:
                         converttitle = "  Converting DTS to AAC [" + str(jobnum) + "/" + str(totaljobs) + "]..."
                         jobnum += 1
-                        audiochannels = 6
-                        if args.aacstereo:
-                            audiochannels = 2
+                        # Set number of AAC audio channels
+                        aacmaxchannels = int(args.aacmaxchannels)
+                        audiochannels = aacmaxchannels
+                        if dtschannels:
+                            print "DTS Channels:" + str(dtschannels) + " AAC MAX Channels:" + str(aacmaxchannels) + " Audio Channels:" + str(audiochannels)
+                            if dtschannels < aacmaxchannels:
+                                print "Channels in DTS track are less than the AAC max, using number of DTS channels"
+                                audiochannels = dtschannels
                         if args.aacchannelbitrate:
                             aacchannelbitrate = args.aacchannelbitrate
                         convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "libfaac", "-ac", str(audiochannels), "-ab", str(audiochannels*aacchannelbitrate) + "k", tempaacfile]
