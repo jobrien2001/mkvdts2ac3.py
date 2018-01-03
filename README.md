@@ -1,3 +1,5 @@
+Forked from dcthomson and added a few enchancements
+
 `mkvdts2ac3.py` is a python script for linux, windows or os x which can be used
 for converting the DTS in Matroska (MKV) files to AC3. It provides you with a set
 of options for controlling the resulting file.
@@ -24,15 +26,15 @@ Make sure the executables for the following libraries are accessible.
 Installation
 ------------
 If you have `git` installed, you can just run
-`git clone git://github.com/dcthomson/mkvdts2ac3.py.git`.
+`git clone https://github.com/jobrien2001/mkvdts2ac3.py.git`.
 
 You can download the script directly with wget or curl:
 
-wget https://raw.github.com/dcthomson/mkvdts2ac3.py/master/mkvdts2ac3.py
+wget https://raw.githubusercontent.com/jobrien2001/mkvdts2ac3.py/master/mkvdts2ac3.py
 
   -or-
 
-curl -O https://raw.github.com/dcthomson/mkvdts2ac3.py/master/mkvdts2ac3.py
+curl -O https://raw.githubusercontent.com/jobrien2001/mkvdts2ac3.py/master/mkvdts2ac3.py
 
 Otherwise you can click the "Download" link on the GitHub project page and
 download an archive and extract its contents.
