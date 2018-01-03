@@ -694,29 +694,6 @@ def process(ford):
                             dtschannels = int(line.split()[-1])
                             print "Channels in Track: " + str(dtschannels)
 
-                    # get ac3 track name
-                    ac3name = False
-                    if args.custom:
-                        ac3name = args.custom
-                    else:
-                        for line in dtstrackinfo:
-                            if "+ Name: " in line:
-                                ac3name = line.split("+ Name: ")[-1]
-                                ac3name = ac3name.replace("DTS", "AC3")
-                                ac3name = ac3name.replace("dts", "ac3")
-                                ac3name = ac3name.replace("5.1", "")
-
-                    # get aac track name
-                    aacname = False
-                    if args.aaccustom:
-                        aacname = args.aaccustom
-                    else:
-                        for line in dtstrackinfo:
-                            if "+ Name: " in line:
-                                aacname = line.split("+ Name: ")[-1]
-                                aacname = aacname.replace("DTS", "AAC")
-                                aacname = aacname.replace("dts", "aac")
-                                aacname = aacname.replace("5.1", "")
 
                     # extract timecodes
                     tctitle = "  Extracting Timecodes  [" + str(jobnum) + "/" + str(totaljobs) + "]..."
@@ -767,6 +744,13 @@ def process(ford):
                     if channelbitrate*audiochannels > 640:
                         bitrate = 640
 
+                    # get ac3 track name
+                    ac3name = False
+                    if args.custom:
+                        ac3name = args.custom
+                    else:
+                        ac3name = dtslang + " AC3 " + str(audiochannels) + "ch " + str(bitrate) + "k"
+
                     # Convert to AC3
                     convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "ac3", "-ac", str(audiochannels), "-ab", str(bitrate) + "k", tempac3file]
                     runcommand(converttitle, convertcmd)
@@ -774,6 +758,7 @@ def process(ford):
                     if args.aac:
                         converttitle = "  Converting DTS to AAC [" + str(jobnum) + "/" + str(totaljobs) + "]..."
                         jobnum += 1
+
                         # Set number of AAC audio channels
                         if args.aacmaxchannels:
                            aacmaxchannels = int(args.aacmaxchannels)
@@ -787,12 +772,20 @@ def process(ford):
                             if dtschannels < aacmaxchannels:
                                 print "Channels in DTS track are less than the AAC max, using number of DTS channels"
                                 audiochannels = dtschannels
+
                         # Set bitrate of AC3 audio channels
                         if args.aacchannelbitrate:
                            aacchannelbitrate = int(args.aacchannelbitrate)
                         else:
                            aacchannelbitrate = 80
                         bitrate = audiochannels*aacchannelbitrate
+
+                        # get aac track name
+                        aacname = False
+                        if args.aaccustom:
+                            aacname = args.aaccustom
+                        else:
+                            aacname = dtslang + " AAC " + str(audiochannels) + "ch " + str(bitrate) + "k"
 
                         # Convert to AC3
                         convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "libfaac", "-ac", str(audiochannels), "-ab", str(bitrate) + "k", tempaacfile]
