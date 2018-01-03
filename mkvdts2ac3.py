@@ -311,10 +311,10 @@ else:
 
     parser.add_argument("--aac", help="Also add aac track", action="store_true")
     parser.add_argument("--aaccustom", metavar="TITLE", help="Custom AAC track title")
-    parser.add_argument("--aacchannelbitrate", default=80, help="AAC Bitrate per channel (default: 80)")
-    parser.add_argument("--aacmaxchannels", default=6, help="Maximum amount of channels of AAC track (default:6)")
-    parser.add_argument("--channelbitrate", default=80, help="AC3 Bitrate per channel (default is 80k per channel)")
-    parser.add_argument("--maxchannels", default=6, help="Maximum amount of channels of AC3 track (default:6)")
+    parser.add_argument("--aacchannelbitrate", help="AAC Bitrate per channel (default: 80)")
+    parser.add_argument("--aacmaxchannels", help="Maximum amount of channels of AAC track (default:6)")
+    parser.add_argument("--channelbitrate", help="AC3 Bitrate per channel (default is 80 per channel)")
+    parser.add_argument("--maxchannels", help="Maximum amount of channels of AC3 track (default:6)")
     parser.add_argument("-c", "--custom", metavar="TITLE", help="Custom AC3 track title")
     parser.add_argument("-d", "--default", help="Mark AC3 track as default", action="store_true")
     parser.add_argument("--destdir", metavar="DIRECTORY", help="Destination Directory")
@@ -745,7 +745,12 @@ def process(ford):
                     jobnum += 1
 
                     # Set number of AC3 audio channels
-                    maxchannels = int(args.maxchannels)
+                    if args.maxchannels:
+                       maxchannels = int(args.maxchannels)
+                    else:
+                       maxchannels = 6
+                    if maxchannels > 6:
+                       maxchannels = 6
                     audiochannels = maxchannels
                     if dtschannels:
                         print "DTS Channels:" + str(dtschannels) + " AC3 MAX Channels:" + str(maxchannels) + " Audio Channels:" + str(audiochannels)
@@ -753,31 +758,50 @@ def process(ford):
                             print "Channels in DTS track are less than the AC3 max, using number of DTS channels"
                             audiochannels = dtschannels
 
+                    # Set bitrate of AC3 audio channels
                     if args.channelbitrate:
-                        channelbitrate = args.channelbitrate
-                    convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "ac3", "-ac", str(audiochannels), "-ab", str(audiochannels*channelbitrate) + "k", tempac3file]
+                       channelbitrate = int(args.channelbitrate)
+                    else:
+                       channelbitrate = 80
+                    bitrate = audiochannels*channelbitrate
+                    if channelbitrate*audiochannels > 640:
+                        bitrate = 640
+
+                    # Convert to AC3
+                    convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "ac3", "-ac", str(audiochannels), "-ab", str(bitrate) + "k", tempac3file]
                     runcommand(converttitle, convertcmd)
 
                     if args.aac:
                         converttitle = "  Converting DTS to AAC [" + str(jobnum) + "/" + str(totaljobs) + "]..."
                         jobnum += 1
                         # Set number of AAC audio channels
-                        aacmaxchannels = int(args.aacmaxchannels)
+                        if args.aacmaxchannels:
+                           aacmaxchannels = int(args.aacmaxchannels)
+                        else:
+                           aacmaxchannels = 6
+                        if aacmaxchannels > 48:
+                           aacmaxchannels = 48
                         audiochannels = aacmaxchannels
                         if dtschannels:
                             print "DTS Channels:" + str(dtschannels) + " AAC MAX Channels:" + str(aacmaxchannels) + " Audio Channels:" + str(audiochannels)
                             if dtschannels < aacmaxchannels:
                                 print "Channels in DTS track are less than the AAC max, using number of DTS channels"
                                 audiochannels = dtschannels
+                        # Set bitrate of AC3 audio channels
                         if args.aacchannelbitrate:
-                            aacchannelbitrate = args.aacchannelbitrate
-                        convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "libfaac", "-ac", str(audiochannels), "-ab", str(audiochannels*aacchannelbitrate) + "k", tempaacfile]
+                           aacchannelbitrate = int(args.aacchannelbitrate)
+                        else:
+                           aacchannelbitrate = 80
+                        bitrate = audiochannels*aacchannelbitrate
+
+                        # Convert to AC3
+                        convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "libfaac", "-ac", str(audiochannels), "-ab", str(bitrate) + "k", tempaacfile]
                         runcommand(converttitle, convertcmd)
                         if not os.path.isfile(tempaacfile) or os.path.getsize(tempaacfile) == 0:
-                            convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "libvo_aacenc", "-ac", str(audiochannels), "-ab", str(audiochannels*aacchannelbitrate) + "k", tempaacfile]
+                            convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "libvo_aacenc", "-ac", str(audiochannels), "-ab", str(bitrate) + "k", tempaacfile]
                             runcommand(converttitle, convertcmd)
                         if not os.path.isfile(tempaacfile) or os.path.getsize(tempaacfile) == 0:
-                            convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "aac", "-ac", str(audiochannels), "-ab", str(audiochannels*aacchannelbitrate) + "k", tempaacfile]
+                            convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "aac", "-ac", str(audiochannels), "-ab", str(bitrate) + "k", tempaacfile]
                             runcommand(converttitle, convertcmd)
                         if not os.path.isfile(tempaacfile) or os.path.getsize(tempaacfile) == 0:
                             args.aac = False
