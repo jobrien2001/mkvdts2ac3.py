@@ -313,7 +313,7 @@ else:
     parser.add_argument("--aaccustom", metavar="TITLE", help="Custom AAC track title")
     parser.add_argument("--aacchannelbitrate", help="AAC Bitrate per channel (default: 80)")
     parser.add_argument("--aacmaxchannels", help="Maximum amount of channels of AAC track (default:6)")
-    parser.add_argument("--aacmaxbitrate", help="Maximum a total bitrate of AAC track (default:768)")
+    parser.add_argument("--aacmaxbitrate", help="Maximum a total bitrate of AAC track (default:640)")
     parser.add_argument("--channelbitrate", help="AC3 Bitrate per channel (default is 80 per channel)")
     parser.add_argument("--maxchannels", help="Maximum amount of channels of AC3 track (default:6)")
     parser.add_argument("-c", "--custom", metavar="TITLE", help="Custom AC3 track title")
@@ -425,7 +425,7 @@ if not args.position:
     args.position = "afterdts"
 
 if not args.aacmaxbitrate:
-    args.aacmaxbitrate = 768
+    args.aacmaxbitrate = 640
 
 if args.verbose < 2 and (args.test or args.debug):
     args.verbose = 2
@@ -789,7 +789,7 @@ def process(ford):
                         # Bitrate cap
                         if args.aacmaxbitrate:
                            if bitrate>int(args.aacmaxbitrate):
-                           bitrate = int(args.aacmaxbitrate)
+                              bitrate = int(args.aacmaxbitrate)
 
                         # get aac track name
                         aacname = False
