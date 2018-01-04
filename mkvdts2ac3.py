@@ -330,7 +330,7 @@ else:
     parser.add_argument("--new", help="Do not copy over original. Create new adjacent file", action="store_true")
     parser.add_argument("--no-subtitles", help="Remove subtitles", action="store_true")
     parser.add_argument("-o", "--overwrite", help="Overwrite file if already there. This only applies if destdir or sabdestdir is set", action="store_true")
-    parser.add_argument("-p", "--position", choices=['initial', 'last', 'afterdts'], default="afterdts", help="Set position of AC3 track. 'initial' = First track in file, 'last' = Last track in file, 'afterdts' = After the DTS track [default: afterdts]")
+    parser.add_argument("-p", "--position", choices=['initial', 'last', 'afterdts'], help="Set position of AC3 track. 'initial' = First track in file, 'last' = Last track in file, 'afterdts' = After the DTS track [default: afterdts]")
     parser.add_argument("-r", "--recursive", help="Recursively descend into directories", action="store_true")
     parser.add_argument("-s", "--compress", metavar="MODE", help="Apply header compression to streams (See mkvmerge's --compression)", default='none')
     parser.add_argument("--sabdestdir", metavar="DIRECTORY", help="SABnzbd Destination Directory")
@@ -419,6 +419,9 @@ if missingprereqs:
 
 if not args.verbose:
     args.verbose = 0
+
+if not args.position:
+    args.position = "afterdts"
 
 if args.verbose < 2 and (args.test or args.debug):
     args.verbose = 2
@@ -693,7 +696,6 @@ def process(ford):
                         if "Channels" in line:
                             dtschannels = int(line.split()[-1])
                             print "Channels in Track: " + str(dtschannels)
-
 
                     # extract timecodes
                     tctitle = "  Extracting Timecodes  [" + str(jobnum) + "/" + str(totaljobs) + "]..."
