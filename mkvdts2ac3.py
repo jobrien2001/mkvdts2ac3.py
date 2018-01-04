@@ -595,7 +595,7 @@ def process(ford):
 
             newmkvfile = fileBaseName + '.mkv'
             tempnewmkvfile = os.path.join(tempdir, newmkvfile)
-            adjacentmkvfile = os.path.join(dirName, fileBaseName + '.new.mkv')
+            adjacentmkvfile = os.path.join(dirName, fileBaseName + '-new.mkv')
             mp4file = os.path.join(dirName, fileBaseName + '.mp4')
             files = []
             if not args.external and not args.mp4:
@@ -789,15 +789,9 @@ def process(ford):
                         else:
                             aacname = dtslang + " AAC " + str(audiochannels) + "ch " + str(bitrate) + "k"
 
-                        # Convert to AC3
-                        convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "libfaac", "-ac", str(audiochannels), "-ab", str(bitrate) + "k", tempaacfile]
+                        # Convert to AAC
+                        convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "aac", "-ac", str(audiochannels), "-ab", str(bitrate) + "k", tempaacfile]
                         runcommand(converttitle, convertcmd)
-                        if not os.path.isfile(tempaacfile) or os.path.getsize(tempaacfile) == 0:
-                            convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "libvo_aacenc", "-ac", str(audiochannels), "-ab", str(bitrate) + "k", tempaacfile]
-                            runcommand(converttitle, convertcmd)
-                        if not os.path.isfile(tempaacfile) or os.path.getsize(tempaacfile) == 0:
-                            convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "aac", "-ac", str(audiochannels), "-ab", str(bitrate) + "k", tempaacfile]
-                            runcommand(converttitle, convertcmd)
                         if not os.path.isfile(tempaacfile) or os.path.getsize(tempaacfile) == 0:
                             args.aac = False
                             print "ERROR: ffmpeg can't use any aac codecs. Please try to get libfaac, libvo_aacenc, or a newer version of ffmpeg with the experimental aac codec installed"
