@@ -799,8 +799,10 @@ def process(ford):
                             aacname = dtslang + " AAC " + str(audiochannels) + "ch " + str(bitrate) + "k"
 
                         # Convert to AAC
-                        convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "aac", "-ac", str(audiochannels), "-ab", str(bitrate) + "k", tempaacfile]
+                        convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "libfdk_aac", "-ac", str(audiochannels), "-ab", str(bitrate) + "k", tempaacfile]
                         runcommand(converttitle, convertcmd)
+                        if not os.path.isfile(tempaacfile) or os.path.getsize(tempaacfile) == 0:
+                            convertcmd = [ffmpeg, "-y", "-i", tempdtsfile, "-acodec", "aac", "-ac", str(audiochannels), "-ab", str(bitrate) + "k", tempaacfile]
                         if not os.path.isfile(tempaacfile) or os.path.getsize(tempaacfile) == 0:
                             args.aac = False
                             print "ERROR: ffmpeg can't use any aac codecs. Please try to get libfaac, libvo_aacenc, or a newer version of ffmpeg with the experimental aac codec installed"
@@ -900,6 +902,25 @@ def process(ford):
                     # Add parameters for each DTS track processed
                     for dtstrackid in dtstracks:
 
+                        if args.aac:
+                            # Set the language
+                            remux.append("--language")
+                            remux.append("0:" + dtsinfo[dtstrackid]['lang'])
+                            # If the name was set for the original DTS track set it for the AAC
+                            if aacname:
+                                remux.append("--track-name")
+                                remux.append("0:\"" + dtsinfo[dtstrackid]['aacname'].rstrip() + "\"")
+
+                            # set delay if there is any
+                            if delay:
+                                remux.append("--sync")
+                                remux.append("0:" + dtsinfo[dtstrackid]['delay'].rstrip())
+
+                            # Set track compression scheme and append new AAC
+                            remux.append("--compression")
+                            remux.append("0:" + comp)
+                            remux.append(dtsinfo[dtstrackid]['aacfile'])
+
                         # Set the language
                         remux.append("--language")
                         remux.append("0:" + dtsinfo[dtstrackid]['lang'])
@@ -918,20 +939,6 @@ def process(ford):
                         remux.append("--compression")
                         remux.append("0:" + comp)
                         remux.append(dtsinfo[dtstrackid]['ac3file'])
-
-                        if args.aac:
-                            # Set the language
-                            remux.append("--language")
-                            remux.append("0:" + dtsinfo[dtstrackid]['lang'])
-                            # If the name was set for the original DTS track set it for the AAC
-                            if aacname:
-                                remux.append("--track-name")
-                                remux.append("0:\"" + dtsinfo[dtstrackid]['aacname'].rstrip() + "\"")
-
-                            # Set track compression scheme and append new AAC
-                            remux.append("--compression")
-                            remux.append("0:" + comp)
-                            remux.append(dtsinfo[dtstrackid]['aacfile'])
 
                     # Declare output file
                     remux.append("-o")
