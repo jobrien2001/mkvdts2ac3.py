@@ -622,7 +622,7 @@ def process(ford):
                     trackid = linelist[0]
                 if ' audio (' in line:
                     audiotracks.append(trackid)
-                if ' audio (A_DTS)' in line or ' audio (DTS' in line or ' audio (A_TrueHD' in line or ' audio (TrueHD' or ' audio (A_EAC3' in line or ' audio (EAC3' in line:
+                if ' audio (A_DTS)' in line or ' audio (DTS' in line or ' audio (A_TrueHD' in line or ' audio (TrueHD' in line:
                     dtstracks.append(trackid)
                 elif ' video (' in line:
                     videotrackid = trackid
