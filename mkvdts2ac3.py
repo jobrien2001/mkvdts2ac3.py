@@ -319,6 +319,7 @@ else:
     parser.add_argument("-c", "--custom", metavar="TITLE", help="Custom AC3 track title")
     parser.add_argument("-d", "--default", help="Mark AC3 track as default", action="store_true")
     parser.add_argument("--destdir", metavar="DIRECTORY", help="Destination Directory")
+    parser.add_argument("--eac3input", help="Convert EAC3 input if detected", action="store_true")
     parser.add_argument("-e", "--external", action="store_true",
                         help="Leave AC3 track out of file. Does not modify the original matroska file. This overrides '-n' and '-d' arguments")
     parser.add_argument("-f", "--force", help="Force processing when AC3 track is detected", action="store_true")
@@ -423,6 +424,9 @@ if not args.verbose:
 
 if not args.position:
     args.position = "afterdts"
+	
+if not args.eac3input:
+    args.eac3input = 0
 
 if not args.aacmaxbitrate:
     args.aacmaxbitrate = 640
@@ -623,6 +627,8 @@ def process(ford):
                 if ' audio (' in line:
                     audiotracks.append(trackid)
                 if ' audio (A_DTS)' in line or ' audio (DTS' in line or ' audio (A_TrueHD' in line or ' audio (TrueHD' in line:
+                    dtstracks.append(trackid)
+                elif args.eac3input and (' audio (A_EAC3' in line or ' audio (EAC3' in line):
                     dtstracks.append(trackid)
                 elif ' video (' in line:
                     videotrackid = trackid
